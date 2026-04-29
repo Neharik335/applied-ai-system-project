@@ -107,3 +107,5 @@ All core logic tests pass. The RAG feature reliably retrieves relevant info when
 This project taught me the importance of robust state management in Streamlit and the value of automated testing. Integrating AI features like RAG can make even simple apps more interactive and user-friendly. I learned to balance simplicity and functionality, and to use AI as a tool for both building and debugging code.
 
 ![System Architecture Diagram](assets/system_architecture.png)
+
+![System Architecture Flowchart](assets/flowchart.png)
