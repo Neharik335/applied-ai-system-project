@@ -67,6 +67,12 @@ graph TD
 - Input: (several wrong guesses)
 - Output: `Out of attempts! The secret was 42. Score: 10`
 
+## Scoring
+- **Win**: Earn `100 - 10 × (attempt_number + 1)` points, minimum 10. Guess earlier to earn more (e.g., win on attempt 1 = 80 pts, attempt 2 = 70 pts).
+- **Too Low**: Lose 5 points.
+- **Too High**: Gain 5 points on even-numbered attempts; lose 5 points on odd-numbered attempts.
+- Points accumulate across all guesses in the session.
+
 ## Design Decisions
 - Used Streamlit for rapid UI development and easy state management.
 - Added a simple RAG feature for explainability and user support.

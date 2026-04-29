@@ -1,18 +1,36 @@
+import os
 import random
 import streamlit as st
 import logging
 
-def retrieve_relevant_info(query, doc_path="README.md", max_lines=5):
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
+def retrieve_relevant_info(query, doc_path=None, max_lines=10):
+    if doc_path is None:
+        doc_path = os.path.join(_HERE, "README.md")
     """
-    Retrieve lines from doc_path most relevant to the query (simple keyword match).
+    Retrieve lines from doc_path most relevant to the query.
+    Splits query into keywords and returns matching lines plus surrounding context.
     """
+    STOP_WORDS = {"how", "does", "what", "is", "the", "a", "an", "in", "of", "for", "to", "do", "i", "me"}
     try:
         with open(doc_path, encoding="utf-8") as f:
             lines = f.readlines()
-        matches = [line.strip() for line in lines if query.lower() in line.lower()]
-        if not matches:
+        keywords = [w for w in query.lower().split() if w not in STOP_WORDS and len(w) > 2]
+        if not keywords:
+            keywords = query.lower().split()
+        seen = set()
+        result = []
+        for i, line in enumerate(lines):
+            line_lower = line.lower()
+            if any(kw in line_lower for kw in keywords):
+                for j in range(max(0, i - 1), min(len(lines), i + 3)):
+                    if j not in seen:
+                        seen.add(j)
+                        result.append(lines[j].strip())
+        if not result:
             return "No relevant information found."
-        return "\n".join(matches[:max_lines])
+        return "\n".join(result[:max_lines])
     except Exception as e:
         logging.error(f"Error retrieving info: {e}")
         return "Error retrieving information."
@@ -92,7 +110,7 @@ st.subheader("Ask the AI about the game!")
 user_question = st.text_input("Type your question about the game, rules, or bugs:", key="rag_question")
 if st.button("Ask AI"):
     with st.spinner("Retrieving info from README.md..."):
-        answer = retrieve_relevant_info(user_question, doc_path="README.md")
+        answer = retrieve_relevant_info(user_question)
         st.info(f"**AI Answer:**\n{answer}")
 
 st.sidebar.header("Settings")
