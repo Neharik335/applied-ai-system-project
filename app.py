@@ -1,5 +1,23 @@
 import random
 import streamlit as st
+import logging
+
+def retrieve_relevant_info(query, doc_path="README.md", max_lines=5):
+    """
+    Retrieve lines from doc_path most relevant to the query (simple keyword match).
+    """
+    try:
+        with open(doc_path, encoding="utf-8") as f:
+            lines = f.readlines()
+        matches = [line.strip() for line in lines if query.lower() in line.lower()]
+        if not matches:
+            return "No relevant information found."
+        return "\n".join(matches[:max_lines])
+    except Exception as e:
+        logging.error(f"Error retrieving info: {e}")
+        return "Error retrieving information."
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
@@ -68,6 +86,14 @@ st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
 st.title("🎮 Game Glitch Investigator")
 st.caption("An AI-generated guessing game. Something is off.")
+
+# --- RAG Feature: Ask a Question about the Game ---
+st.subheader("Ask the AI about the game!")
+user_question = st.text_input("Type your question about the game, rules, or bugs:", key="rag_question")
+if st.button("Ask AI"):
+    with st.spinner("Retrieving info from README.md..."):
+        answer = retrieve_relevant_info(user_question, doc_path="README.md")
+        st.info(f"**AI Answer:**\n{answer}")
 
 st.sidebar.header("Settings")
 
